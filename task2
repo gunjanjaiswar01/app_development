@@ -1,0 +1,384 @@
+import tkinter as tk
+from tkinter import ttk
+import random
+import json
+import os
+import pyttsx3
+
+# ---------------- TEXT TO SPEECH ---------------- #
+
+engine = pyttsx3.init()
+
+def speak():
+    text = word_label.cget("text")
+    if text != "":
+        engine.say(text)
+        engine.runAndWait()
+
+# ---------------- LANGUAGE DATA ---------------- #
+
+languages={
+
+"Hindi":{
+
+"Vocabulary":[
+("Hello",["नमस्ते","namaste"]),
+("Thank you",["धन्यवाद","dhanyavad"]),
+("Water",["पानी","pani","paani"]),
+("Food",["खाना","khana"]),
+("Friend",["दोस्त","dost"]),
+("House",["घर","ghar"]),
+("Book",["किताब","kitaab","kitab"]),
+("Dog",["कुत्ता","kutta"]),
+("Cat",["बिल्ली","billi"]),
+("Sun",["सूरज","suraj"]),
+("Moon",["चाँद","chand","channd"]),
+("Mother",["माँ","maa"]),
+("Father",["पिता","pita"]),
+("Brother",["भाई","bhai"]),
+("Sister",["बहन","behen"]),
+("School",["स्कूल","school"]),
+("Car",["गाड़ी","gaadi","gadi"])
+],
+
+"Sentences":[
+("How are you?",["आप कैसे हैं","aap kaise hain"]),
+("I am fine",["मैं ठीक हूँ","mai thik hu"]),
+("What is your name?",["आपका नाम क्या है","aapka naam kya hai"]),
+("Where are you from?",["आप कहाँ से हैं","aap kahan se hain"]),
+("Good morning",["सुप्रभात","suprabhat"]),
+("Good night",["शुभ रात्रि","shubh ratri"])
+]
+
+},
+
+"Spanish":{
+"Vocabulary":[
+("Hello",["hola"]),
+("Thank you",["gracias"]),
+("Please",["por favor"]),
+("Yes",["si"]),
+("No",["no"]),
+("Water",["agua"]),
+("Food",["comida"]),
+("Friend",["amigo"]),
+("House",["casa"]),
+("School",["escuela"]),
+("Book",["libro"]),
+("Dog",["perro"]),
+("Cat",["gato"]),
+("Sun",["sol"]),
+("Moon",["luna"])
+],
+"Sentences":[
+("How are you?",["como estas"]),
+("I am fine",["estoy bien"]),
+("Good morning",["buenos dias"]),
+("Good night",["buenas noches"]),
+("Nice to meet you",["mucho gusto"])
+]
+},
+
+"French":{
+"Vocabulary":[
+("Hello",["bonjour"]),
+("Thank you",["merci"]),
+("Please",["s'il vous plait"]),
+("Yes",["oui"]),
+("No",["non"]),
+("Water",["eau"]),
+("Food",["nourriture"]),
+("Friend",["ami"]),
+("House",["maison"]),
+("Book",["livre"]),
+("Sun",["soleil"]),
+("Moon",["lune"])
+],
+"Sentences":[
+("How are you?",["comment ca va"]),
+("I am fine",["je vais bien"]),
+("Good morning",["bonjour"]),
+("Good night",["bonne nuit"])
+]
+},
+
+"German":{
+"Vocabulary":[
+("Hello",["hallo"]),
+("Thank you",["danke"]),
+("Please",["bitte"]),
+("Yes",["ja"]),
+("No",["nein"]),
+("Water",["wasser"]),
+("Food",["essen"]),
+("Friend",["freund"]),
+("House",["haus"])
+],
+"Sentences":[
+("How are you?",["wie geht es dir"]),
+("I am fine",["mir geht es gut"])
+]
+},
+
+"Italian":{
+"Vocabulary":[
+("Hello",["ciao"]),
+("Thank you",["grazie"]),
+("Water",["acqua"]),
+("Food",["cibo"])
+],
+"Sentences":[
+("Good morning",["buongiorno"]),
+("Good night",["buona notte"])
+]
+},
+
+"Japanese":{
+"Vocabulary":[
+("Hello",["konnichiwa"]),
+("Thank you",["arigato"]),
+("Water",["mizu"])
+],
+"Sentences":[
+("Good morning",["ohayo"])
+]
+},
+
+"Korean":{
+"Vocabulary":[
+("Hello",["annyeong"]),
+("Thank you",["gamsahamnida"])
+],
+"Sentences":[
+("Good morning",["joeun achim"])
+]
+},
+
+"Chinese":{
+"Vocabulary":[
+("Hello",["ni hao"]),
+("Thank you",["xie xie"])
+],
+"Sentences":[
+("Good morning",["zao shang hao"])
+]
+},
+
+"Arabic":{
+"Vocabulary":[
+("Hello",["salam"]),
+("Thank you",["shukran"])
+],
+"Sentences":[
+("Good morning",["sabah al khair"])
+]
+},
+
+"Russian":{
+"Vocabulary":[
+("Hello",["privet"]),
+("Thank you",["spasibo"])
+],
+"Sentences":[
+("Good morning",["dobroe utro"])
+]
+}
+
+}
+
+# ---------------- SAVE SCORE ---------------- #
+
+score_file="progress.json"
+
+if os.path.exists(score_file):
+    with open(score_file,"r") as f:
+        data=json.load(f)
+else:
+    data={"score":0}
+
+# ---------------- FUNCTIONS ---------------- #
+
+current_word=None
+current_answers=None
+
+def new_flashcard():
+
+    global current_word,current_answers
+
+    lang=language_var.get()
+    cat=category_var.get()
+
+    pair=random.choice(languages[lang][cat])
+
+    current_word=pair[0]
+    current_answers=pair[1]
+
+    word_label.config(text=current_word)
+    translation_label.config(text="")
+
+def show_translation():
+
+    if current_answers:
+        translation_label.config(text=current_answers[0])
+
+def start_quiz():
+
+    global current_word,current_answers
+
+    lang=language_var.get()
+    cat=category_var.get()
+
+    pair=random.choice(languages[lang][cat])
+
+    current_word=pair[0]
+    current_answers=pair[1]
+
+    word_label.config(text="Translate : "+current_word)
+
+    translation_label.config(text="")
+    answer.delete(0,tk.END)
+
+def normalize(text):
+
+    text=text.lower().strip()
+    text=text.replace("aa","a")
+    text=text.replace("nn","n")
+
+    return text
+
+def check_answer():
+
+    global data
+
+    user=normalize(answer.get())
+
+    accepted=[normalize(a) for a in current_answers]
+
+    if user in accepted:
+
+        translation_label.config(text="✅ Correct",fg="green")
+        data["score"]+=1
+
+    else:
+
+        translation_label.config(
+        text="❌ Correct Answer : "+current_answers[0],
+        fg="red")
+
+    score_label.config(text="Score : "+str(data["score"]))
+
+    with open(score_file,"w") as f:
+        json.dump(data,f)
+
+# ---------------- UI ---------------- #
+
+root=tk.Tk()
+root.title("Language Learning App")
+root.geometry("620x540")
+root.configure(bg="#f2f4f8")
+
+title=tk.Label(root,
+text="🌍 Language Learning App",
+font=("Arial",22,"bold"),
+bg="#f2f4f8")
+
+title.pack(pady=20)
+
+top_frame=tk.Frame(root,bg="#f2f4f8")
+top_frame.pack()
+
+language_var=tk.StringVar(value="Hindi")
+category_var=tk.StringVar(value="Vocabulary")
+
+ttk.Label(top_frame,text="Language").grid(row=0,column=0,padx=10)
+
+ttk.Combobox(
+top_frame,
+textvariable=language_var,
+values=list(languages.keys()),
+width=15).grid(row=0,column=1)
+
+ttk.Label(top_frame,text="Category").grid(row=0,column=2,padx=10)
+
+ttk.Combobox(
+top_frame,
+textvariable=category_var,
+values=["Vocabulary","Sentences"],
+width=15).grid(row=0,column=3)
+
+word_label=tk.Label(
+root,
+text="",
+font=("Arial",22,"bold"),
+bg="#f2f4f8")
+
+word_label.pack(pady=30)
+
+# 🔊 Pronunciation Button
+tk.Button(
+root,
+text="🔊 Pronounce",
+command=speak,
+bg="#009688",
+fg="white",
+font=("Arial",12),
+width=18).pack(pady=5)
+
+translation_label=tk.Label(
+root,
+text="",
+font=("Arial",18),
+bg="#f2f4f8")
+
+translation_label.pack()
+
+btn_frame=tk.Frame(root,bg="#f2f4f8")
+btn_frame.pack(pady=20)
+
+btn_style={"font":("Arial",11),"width":16}
+
+tk.Button(
+btn_frame,
+text="New Flashcard",
+command=new_flashcard,
+bg="#4CAF50",
+fg="white",
+**btn_style).grid(row=0,column=0,padx=10,pady=5)
+
+tk.Button(
+btn_frame,
+text="Show Translation",
+command=show_translation,
+bg="#FF9800",
+fg="white",
+**btn_style).grid(row=0,column=1,padx=10,pady=5)
+
+tk.Button(
+btn_frame,
+text="Start Quiz",
+command=start_quiz,
+bg="#2196F3",
+fg="white",
+**btn_style).grid(row=1,column=0,columnspan=2,pady=5)
+
+answer=tk.Entry(root,font=("Arial",14),width=25)
+answer.pack(pady=10)
+
+tk.Button(
+root,
+text="Check Answer",
+command=check_answer,
+bg="#673AB7",
+fg="white",
+font=("Arial",12),
+width=20).pack(pady=10)
+
+score_label=tk.Label(
+root,
+text="Score : "+str(data["score"]),
+font=("Arial",14),
+bg="#f2f4f8")
+
+score_label.pack()
+
+root.mainloop()
